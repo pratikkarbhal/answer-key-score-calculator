@@ -1,10 +1,11 @@
-# 🎯 Negative Marking Calculator
+# 🎯 Negative Marking Calculator [See Preview](https://pratikkarbhal.github.io/answer-key-score-calculator/)
+
 
 A simple, fast, and mobile-friendly web application for calculating exam scores using official answer keys.
 
 Perfect for candidates who want to estimate their marks immediately after an exam without manually calculating negative marking.
 
-## 🌐 Live Demo
+## 🌐 [Live Demo](https://pratikkarbhal.github.io/answer-key-score-calculator/)
 
 ## ✨ Features
 
