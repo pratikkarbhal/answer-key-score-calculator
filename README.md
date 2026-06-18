@@ -98,41 +98,6 @@ This calculator is useful for competitive examinations that use negative marking
 
 ---
 
-## 🚀 Quick Deployment
-
-### GitHub Pages
-
-1. Fork or clone this repository.
-
-```bash
-git clone https://github.com/yourusername/negative-marking-calculator.git
-```
-
-2. Ensure the file is named:
-
-```text
-index.html
-```
-
-3. Push to GitHub.
-
-4. Go to:
-
-```text
-Repository Settings → Pages
-```
-
-5. Select:
-
-```text
-Deploy from branch → main → /root
-```
-
-6. Save.
-
-Your calculator will be live within a few minutes.
-
----
 
 ## 🛠️ Built With
 
