@@ -4,295 +4,781 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Negative Marking Calculator</title>
-
 <style>
-:root {
-    --bg: #f4f6f9;
-    --card: #ffffff;
-    --text: #222;
-    --primary: #2563eb;
-    --danger: #dc2626;
-    --border: #e5e7eb;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --card:      #21253a;
+    --border:    #2e3350;
+    --text:      #e8eaf0;
+    --muted:     #6b7280;
+    --correct:   #3b82f6;
+    --skip:      #f59e0b;
+    --wrong:     #ef4444;
+    --correct-d: #1d4ed8;
+    --skip-d:    #d97706;
+    --wrong-d:   #b91c1c;
+    --positive:  #22c55e;
+    --negative:  #ef4444;
+    --neutral:   #94a3b8;
+  }
 
-body {
-    font-family: system-ui, sans-serif;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
     background: var(--bg);
     min-height: 100vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 20px;
-}
-
-.card {
-    background: var(--card);
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    width: 100%;
-    max-width: 380px;
-    text-align: center;
-}
-
-h2 {
     color: var(--text);
-    margin-bottom: 20px;
-}
+  }
 
-select,
-input {
+  /* ── Card ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px 24px;
     width: 100%;
-    padding: 12px;
+    max-width: 400px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  /* ── Top bar: title + history controls ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+
+  .app-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .history-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .icon-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .icon-btn:active { transform: scale(0.9); }
+  .icon-btn:disabled { color: #3a3f55; cursor: default; background: none; }
+  .icon-btn svg { width: 20px; height: 20px; }
+
+  /* ── Negative mark selector ── */
+  .neg-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .neg-label {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  select {
+    flex: 1;
+    background: var(--surface);
+    color: var(--text);
     border: 1px solid var(--border);
     border-radius: 10px;
-    font-size: 18px;
+    padding: 9px 12px;
+    font-size: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
     text-align: center;
-    margin-bottom: 15px;
-}
+  }
 
-input {
-    font-size: 32px;
-    font-weight: bold;
-    color: var(--primary);
-    background: #fafafa;
-}
+  select:focus { outline: 2px solid var(--correct); outline-offset: 2px; }
 
-.buttons {
+  /* ── Score display ── */
+  .score-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 12px 14px;
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+  }
+
+  .score-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .score-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.25s;
+    color: var(--neutral);
+  }
+
+  .score-value.positive { color: var(--positive); }
+  .score-value.negative { color: var(--negative); }
+
+  /* ── Question counter ── */
+  .q-counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .q-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--border);
+    color: var(--text);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .q-label { font-size: 12px; color: var(--muted); }
+
+  /* ── 3-button row ── */
+  .action-row {
     display: flex;
     gap: 10px;
-}
+    align-items: center;
+    margin-bottom: 18px;
+  }
 
-button {
+  .btn-correct,
+  .btn-wrong {
     flex: 1;
     border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-size: 16px;
+    border-radius: 14px;
+    padding: 16px 8px;
+    font-size: 15px;
     font-weight: 600;
+    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-button:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-.correct {
-    background: var(--primary);
-    color: white;
-}
-
-.wrong {
-    background: var(--danger);
-    color: white;
-}
-
-.info {
-    margin-top: 15px;
-    color: #666;
-    font-size: 14px;
-}
-
-/* Ripple effect */
-button {
     position: relative;
     overflow: hidden;
-}
+    transition: filter 0.15s, transform 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
 
-.ripple {
+  .btn-correct { background: var(--correct); color: #fff; }
+  .btn-wrong   { background: var(--wrong);   color: #fff; }
+
+  .btn-correct:hover { filter: brightness(1.12); }
+  .btn-wrong:hover   { filter: brightness(1.12); }
+  .btn-correct:active, .btn-wrong:active { transform: scale(0.96); }
+
+  .btn-skip {
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 2.5px solid var(--skip);
+    background: transparent;
+    color: var(--skip);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.15s, transform 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .btn-skip:hover  { background: rgba(245, 158, 11, 0.1); }
+  .btn-skip:active { transform: scale(0.93); }
+
+  .btn-key {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: 0.65;
+    font-weight: 500;
+  }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stat-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .stat-val.c { color: var(--correct); }
+  .stat-val.s { color: var(--skip); }
+  .stat-val.w { color: var(--wrong); }
+  .stat-val.a { color: var(--positive); }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── Accuracy bar ── */
+  .accuracy-wrap {
+    margin-bottom: 18px;
+  }
+
+  .accuracy-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .accuracy-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .accuracy-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--positive);
+  }
+
+  .accuracy-track {
+    height: 6px;
+    background: var(--surface);
+    border-radius: 99px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .accuracy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--correct), var(--positive));
+    border-radius: 99px;
+    transition: width 0.35s ease;
+    width: 0%;
+  }
+
+  /* ── Note ── */
+  .note {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .kbd {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text);
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2d3250;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Ripple ── */
+  .ripple {
     position: absolute;
     border-radius: 50%;
     transform: scale(0);
-    animation: ripple-anim 0.4s linear;
-    background-color: rgba(255, 255, 255, 0.35);
+    animation: ripple-anim 0.45s linear;
+    background-color: rgba(255,255,255,0.25);
     pointer-events: none;
-}
+  }
 
-@keyframes ripple-anim {
-    to {
-        transform: scale(4);
-        opacity: 0;
-    }
-}
+  @keyframes ripple-anim {
+    to { transform: scale(5); opacity: 0; }
+  }
 
-@media (max-width: 768px) {
-
-    body {
-        padding: 10px;
-    }
-
-    .card {
-        max-width: 100%;
-        padding: 25px;
-    }
-
-    h2 {
-        font-size: 2rem;
-    }
-
-    select {
-        font-size: 22px;
-        padding: 16px;
-    }
-
-    input {
-        font-size: 56px;
-        padding: 20px;
-    }
-
-    button {
-        font-size: 24px;
-        padding: 20px;
-    }
-
-    .info {
-        font-size: 16px;
-    }
-
-}
+  /* ── Mobile ── */
+  @media (max-width: 480px) {
+    .card { padding: 22px 18px 20px; }
+    .score-value { font-size: 64px; }
+    .btn-correct, .btn-wrong { padding: 18px 8px; font-size: 16px; }
+    .btn-skip { width: 72px; height: 72px; font-size: 13px; }
+    .stat-val { font-size: 18px; }
+  }
 </style>
 </head>
-
 <body>
 
 <div class="card">
-    <h2>Negative Marking Calculator</h2>
 
+  <!-- Top bar -->
+  <div class="top-bar">
+    <span class="app-title">Score Tracker</span>
+    <div class="history-controls">
+
+      <!-- Undo -->
+      <button class="icon-btn" id="btnUndo" onclick="undo()" title="Undo (Ctrl+Z)" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9h13a5 5 0 0 1 0 10H7"/>
+          <polyline points="3 5 3 9 7 9"/>
+        </svg>
+      </button>
+
+      <!-- Redo -->
+      <button class="icon-btn" id="btnRedo" onclick="redo()" title="Redo (Ctrl+Y)" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 9H8a5 5 0 0 0 0 10h9"/>
+          <polyline points="21 5 21 9 17 9"/>
+        </svg>
+      </button>
+
+      <!-- Reset -->
+      <button class="icon-btn" id="btnReset" onclick="resetAll()" title="Reset">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Negative mark selector -->
+  <div class="neg-row">
+    <span class="neg-label">Negative</span>
     <select id="negativeMark">
-        <option value="0.25">0.25 Negative</option>
-        <option value="0.33">0.33 Negative</option>
-        <option value="0.5">0.50 Negative</option>
+      <option value="0.25">− 0.25</option>
+      <option value="0.33">− 0.33</option>
+      <option value="0.5">− 0.50</option>
     </select>
+  </div>
 
-    <input type="number" id="counter" value="0.00" readonly>
-
-    <div class="buttons">
-        <button class="correct" onclick="addCorrect(event)">
-            +1 Correct
-        </button>
-
-        <button class="wrong" onclick="addWrong(event)">
-            Wrong
-        </button>
+  <!-- Score display -->
+  <div class="score-wrap">
+    <div class="score-label">Total Score</div>
+    <div class="score-value" id="scoreDisplay">0.00</div>
+    <div class="q-counter">
+      <span class="q-label">Question</span>
+      <span class="q-badge" id="qBadge">1</span>
     </div>
+  </div>
 
-    <div class="info">
-        Note: Do not consider Un-attempted questions.<br>
-        Correct = +1 | Wrong = -(Default -0.25 , can be changed from drop-down)
+  <!-- Action buttons -->
+  <div class="action-row">
+    <button class="btn-correct" onclick="addCorrect(event)">
+      ✓ Correct
+    </button>
+
+    <button class="btn-skip" onclick="addSkip(event)" title="Skip / Unattempted">
+      <span style="font-size:18px">⊘</span>
+      Skip
+    </button>
+
+    <button class="btn-wrong" onclick="addWrong(event)">
+      ✗ Wrong
+    </button>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-cell">
+      <div class="stat-val c" id="statCorrect">0</div>
+      <div class="stat-lbl">Correct</div>
     </div>
+    <div class="stat-cell">
+      <div class="stat-val s" id="statSkipped">0</div>
+      <div class="stat-lbl">Skipped</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val w" id="statWrong">0</div>
+      <div class="stat-lbl">Wrong</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val a" id="statAccuracy">—</div>
+      <div class="stat-lbl">Accuracy</div>
+    </div>
+  </div>
+
+  <!-- Accuracy bar -->
+  <div class="accuracy-wrap">
+    <div class="accuracy-row">
+      <span class="accuracy-label">Live Accuracy</span>
+      <span class="accuracy-pct" id="accuracyPct">—</span>
+    </div>
+    <div class="accuracy-track">
+      <div class="accuracy-fill" id="accuracyFill"></div>
+    </div>
+  </div>
+
+  <!-- Note -->
+  <div class="note">
+    <kbd class="kbd">A</kbd> Correct &nbsp;·&nbsp;
+    <kbd class="kbd">S</kbd> Skip &nbsp;·&nbsp;
+    <kbd class="kbd">D</kbd> Wrong<br>
+    <kbd class="kbd">Ctrl Z</kbd> Undo &nbsp;·&nbsp;
+    <kbd class="kbd">Ctrl Y</kbd> Redo
+    <br><br>Session is auto-saved — close and reopen anytime.
+  </div>
+
 </div>
 
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-let total = 0;
+// ─────────────────────────────────────────────
+//  State
+// ─────────────────────────────────────────────
+const STORAGE_KEY = 'nmcalc_session_v2';
 
-// ── Audio Context (created once on first interaction to satisfy browser policy) ──
-let audioCtx = null;
+// Each entry: { type: 'correct'|'wrong'|'skip', negMark: number }
+let history = [];   // committed actions
+let future  = [];   // actions available to redo
 
-function getAudioCtx() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    return audioCtx;
+// ─────────────────────────────────────────────
+//  Derived state helpers
+// ─────────────────────────────────────────────
+function computeStats() {
+  let score   = 0;
+  let correct = 0;
+  let wrong   = 0;
+  let skipped = 0;
+
+  for (const e of history) {
+    if (e.type === 'correct') { score += 1; correct++; }
+    else if (e.type === 'wrong') { score -= e.negMark; wrong++; }
+    else { skipped++; }
+  }
+
+  const attempted  = correct + wrong;
+  const accuracy   = attempted > 0 ? (correct / attempted) * 100 : null;
+  const qNumber    = history.length + 1;   // next question to answer
+
+  return { score, correct, wrong, skipped, accuracy, qNumber };
 }
 
-/**
- * Play a short beep.
- * @param {number} frequency  - Hz  (higher = brighter)
- * @param {string} type       - oscillator type: 'sine' | 'square' | 'triangle'
- * @param {number} duration   - seconds
- * @param {number} volume     - 0.0 – 1.0
- */
-function playBeep(frequency, type, duration, volume) {
-    try {
-        const ctx = getAudioCtx();
-        const oscillator = ctx.createOscillator();
-        const gainNode   = ctx.createGain();
+// ─────────────────────────────────────────────
+//  Render
+// ─────────────────────────────────────────────
+function render() {
+  const { score, correct, wrong, skipped, accuracy, qNumber } = computeStats();
 
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
+  // Score
+  const sd = document.getElementById('scoreDisplay');
+  sd.textContent = score.toFixed(2);
+  sd.className = 'score-value' + (score > 0 ? ' positive' : score < 0 ? ' negative' : '');
 
-        oscillator.type      = type;
-        oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+  // Question badge
+  document.getElementById('qBadge').textContent = qNumber;
 
-        // Fade out smoothly to avoid a click at the end
-        gainNode.gain.setValueAtTime(volume, ctx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+  // Stats cells
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statSkipped').textContent = skipped;
+  document.getElementById('statWrong').textContent   = wrong;
 
-        oscillator.start(ctx.currentTime);
-        oscillator.stop(ctx.currentTime + duration);
-    } catch (e) {
-        // Audio not supported – silently ignore
-    }
+  // Accuracy
+  const pctEl  = document.getElementById('accuracyPct');
+  const statAc = document.getElementById('statAccuracy');
+  const fill   = document.getElementById('accuracyFill');
+
+  if (accuracy !== null) {
+    const pctStr = accuracy.toFixed(1) + '%';
+    pctEl.textContent  = pctStr;
+    statAc.textContent = pctStr;
+    fill.style.width   = accuracy + '%';
+  } else {
+    pctEl.textContent  = '—';
+    statAc.textContent = '—';
+    fill.style.width   = '0%';
+  }
+
+  // Undo / Redo buttons
+  document.getElementById('btnUndo').disabled = history.length === 0;
+  document.getElementById('btnRedo').disabled = future.length === 0;
+
+  // Persist
+  saveSession();
 }
 
-// ── Vibration ──
-function vibrate(pattern) {
-    if (navigator.vibrate) {
-        navigator.vibrate(pattern);
-    }
+// ─────────────────────────────────────────────
+//  Actions
+// ─────────────────────────────────────────────
+function getNeg() {
+  return parseFloat(document.getElementById('negativeMark').value);
 }
 
-// ── Ripple effect ──
-function createRipple(event) {
-    const button = event.currentTarget;
-    const circle = document.createElement('span');
-    const diameter = Math.max(button.clientWidth, button.clientHeight);
-    const radius = diameter / 2;
-    const rect = button.getBoundingClientRect();
-
-    circle.style.width  = circle.style.height = `${diameter}px`;
-    circle.style.left   = `${event.clientX - rect.left - radius}px`;
-    circle.style.top    = `${event.clientY - rect.top  - radius}px`;
-    circle.classList.add('ripple');
-
-    // Remove any existing ripple
-    const existing = button.querySelector('.ripple');
-    if (existing) existing.remove();
-
-    button.appendChild(circle);
+function commit(entry) {
+  history.push(entry);
+  future = [];   // new action clears redo stack
+  render();
 }
 
-// ── Display ──
-function updateDisplay() {
-    document.getElementById("counter").value = total.toFixed(2);
-}
-
-// ── Button actions ──
 function addCorrect(event) {
-    total += 1;
-    updateDisplay();
-    createRipple(event);
+  commit({ type: 'correct', negMark: getNeg() });
+  feedback(event, 'correct');
+}
 
-    // Pleasant high-pitched "ding" for correct
-    playBeep(880, 'sine', 0.18, 0.5);
-
-    // Short single vibration — feels like a satisfying tap
-    vibrate(40);
+function addSkip(event) {
+  commit({ type: 'skip', negMark: getNeg() });
+  feedback(event, 'skip');
 }
 
 function addWrong(event) {
-    const negative = parseFloat(
-        document.getElementById("negativeMark").value
-    );
-    total -= negative;
-    updateDisplay();
-    createRipple(event);
-
-    // Lower, harsher buzz for wrong
-    playBeep(220, 'square', 0.22, 0.4);
-
-    // Double pulse vibration — distinct from correct
-    vibrate([60, 40, 60]);
+  commit({ type: 'wrong', negMark: getNeg() });
+  feedback(event, 'wrong');
 }
-</script>
 
-</body>
-</html>
+function undo() {
+  if (history.length === 0) return;
+  future.push(history.pop());
+  render();
+  playBeep(440, 'sine', 0.1, 0.25);
+  vibrate(30);
+}
+
+function redo() {
+  if (future.length === 0) return;
+  history.push(future.pop());
+  render();
+  playBeep(550, 'sine', 0.1, 0.25);
+  vibrate(30);
+}
+
+function resetAll() {
+  if (history.length === 0 && future.length === 0) return;
+  if (!confirm('Reset everything and start from Question 1?')) return;
+  history = [];
+  future  = [];
+  render();
+  showToast('Reset — starting fresh');
+  playBeep(330, 'triangle', 0.15, 0.3);
+  vibrate([40, 30, 40]);
+}
+
+// ─────────────────────────────────────────────
+//  Feedback (sound + vibration + ripple)
+// ─────────────────────────────────────────────
+function feedback(event, type) {
+  if (event) createRipple(event);
+
+  if (type === 'correct') {
+    playBeep(880, 'sine',     0.18, 0.5);
+    vibrate(40);
+  } else if (type === 'wrong') {
+    playBeep(220, 'square',   0.22, 0.4);
+    vibrate([60, 40, 60]);
+  } else {
+    playBeep(540, 'triangle', 0.14, 0.3);
+    vibrate(25);
+  }
+}
+
+function createRipple(event) {
+  const btn = event.currentTarget;
+  const existing = btn.querySelector('.ripple');
+  if (existing) existing.remove();
+
+  const circle   = document.createElement('span');
+  const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+  const radius   = diameter / 2;
+  const rect     = btn.getBoundingClientRect();
+
+  circle.style.cssText = `
+    width:${diameter}px; height:${diameter}px;
+    left:${event.clientX - rect.left - radius}px;
+    top:${event.clientY - rect.top  - radius}px;
+  `;
+  circle.classList.add('ripple');
+  btn.appendChild(circle);
+}
+
+// ─────────────────────────────────────────────
+//  Audio
+// ─────────────────────────────────────────────
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioCtx;
+}
+
+function playBeep(freq, type, dur, vol) {
+  try {
+    const ctx  = getAudioCtx();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+
+function vibrate(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+// ─────────────────────────────────────────────
+//  Toast
+// ─────────────────────────────────────────────
+let toastTimer = null;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────────
+//  Session persistence (localStorage)
+// ─────────────────────────────────────────────
+function saveSession() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      history,
+      future,
+      negMark: document.getElementById('negativeMark').value
+    }));
+  } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+
+    const data = JSON.parse(raw);
+    if (!data.history || data.history.length === 0) return false;
+
+    history = data.history;
+    future  = data.future || [];
+
+    if (data.negMark) {
+      document.getElementById('negativeMark').value = data.negMark;
+    }
+
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Keyboard shortcuts
+// ─────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  // Ignore when typing in an input/select
+  if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return;
+
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo(); return; }
+    if (e.key === 'y' || e.key === 'Y') { e.preventDefault(); redo(); return; }
+  }
+
+  switch (e.key.toLowerCase()) {
+    case 'a': addCorrect(null); break;
+    case 's': addSkip(null);    break;
+    case 'd': addWrong(null);   break;
+  }
+});
+
+// ─────────────────────────────────────────────
+//  Boot
+// ─────────────────────────────────────────────
+(function init
