@@ -5,24 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Negative Marking Calculator</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap');
 
   :root {
-    --bg:        #0f1117;
-    --surface:   #1a1d27;
-    --card:      #21253a;
-    --border:    #2e3350;
-    --text:      #e8eaf0;
-    --muted:     #6b7280;
-    --correct:   #3b82f6;
-    --skip:      #f59e0b;
-    --wrong:     #ef4444;
-    --correct-d: #1d4ed8;
-    --skip-d:    #d97706;
-    --wrong-d:   #b91c1c;
-    --positive:  #22c55e;
-    --negative:  #ef4444;
-    --neutral:   #94a3b8;
+    --bg:       #13151c;
+    --card:     #1c1f2e;
+    --surface:  #252839;
+    --border:   #2f3347;
+    --text:     #dde1f0;
+    --muted:    #5c6278;
+    --subtle:   #3a3f58;
+
+    /* Muted, cohesive accent trio */
+    --correct:  #5a8f6e;   /* sage green  */
+    --skip:     #7d7a52;   /* warm khaki  */
+    --wrong:    #8f5a5a;   /* dusty rose  */
+
+    /* Score colors — readable but not jarring */
+    --pos:      #6aab82;
+    --neg:      #ab6a6a;
+    --zero:     #6a7494;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +34,6 @@
     background: var(--bg);
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -43,33 +44,32 @@
   .card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 28px 24px 24px;
+    border-radius: 18px;
+    padding: 24px 22px 22px;
     width: 100%;
-    max-width: 400px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
-    position: relative;
+    max-width: 390px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.45);
   }
 
-  /* ── Top bar: title + history controls ── */
+  /* ── Top bar ── */
   .top-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
   }
 
   .app-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted);
   }
 
   .history-controls {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     align-items: center;
   }
 
@@ -77,27 +77,29 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 6px;
+    padding: 7px;
     border-radius: 8px;
-    color: var(--muted);
+    color: var(--subtle);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: color 0.15s, background 0.15s;
     -webkit-tap-highlight-color: transparent;
   }
+  .icon-btn:hover   { color: var(--text); background: rgba(255,255,255,0.05); }
+  .icon-btn:active  { transform: scale(0.88); }
+  .icon-btn:disabled { color: #272b3c; cursor: default; background: none !important; }
+  .icon-btn svg     { width: 18px; height: 18px; }
 
-  .icon-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
-  .icon-btn:active { transform: scale(0.9); }
-  .icon-btn:disabled { color: #3a3f55; cursor: default; background: none; }
-  .icon-btn svg { width: 20px; height: 20px; }
+  /* Reset confirm state */
+  .icon-btn.confirm-reset { color: var(--wrong); }
 
-  /* ── Negative mark selector ── */
+  /* ── Neg mark selector ── */
   .neg-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 
   .neg-label {
@@ -112,86 +114,80 @@
     background: var(--surface);
     color: var(--text);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 12px;
-    font-size: 15px;
+    border-radius: 9px;
+    padding: 8px 12px;
+    font-size: 14px;
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     appearance: none;
     text-align: center;
   }
+  select:focus { outline: 1px solid var(--subtle); outline-offset: 2px; }
 
-  select:focus { outline: 2px solid var(--correct); outline-offset: 2px; }
-
-  /* ── Score display ── */
+  /* ── Score block ── */
   .score-wrap {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 12px 14px;
-    margin-bottom: 20px;
+    border-radius: 12px;
+    padding: 16px 12px 12px;
+    margin-bottom: 16px;
     text-align: center;
-    position: relative;
   }
 
   .score-label {
-    font-size: 11px;
-    letter-spacing: 0.1em;
+    font-size: 10px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     font-weight: 600;
   }
 
   .score-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 56px;
+    font-size: 54px;
     font-weight: 700;
     line-height: 1;
-    transition: color 0.25s;
-    color: var(--neutral);
+    color: var(--zero);
+    transition: color 0.3s;
   }
+  .score-value.pos { color: var(--pos); }
+  .score-value.neg { color: var(--neg); }
 
-  .score-value.positive { color: var(--positive); }
-  .score-value.negative { color: var(--negative); }
-
-  /* ── Question counter ── */
-  .q-counter {
+  .q-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
     margin-top: 8px;
   }
-
+  .q-label { font-size: 11px; color: var(--muted); }
   .q-badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     background: var(--border);
     color: var(--text);
-    padding: 3px 10px;
+    padding: 2px 9px;
     border-radius: 20px;
   }
 
-  .q-label { font-size: 12px; color: var(--muted); }
-
-  /* ── 3-button row ── */
+  /* ── Action buttons ── */
   .action-row {
     display: flex;
     gap: 10px;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 
   .btn-correct,
   .btn-wrong {
     flex: 1;
     border: none;
-    border-radius: 14px;
-    padding: 16px 8px;
-    font-size: 15px;
+    border-radius: 12px;
+    padding: 15px 8px;
+    font-size: 14px;
     font-weight: 600;
     font-family: 'Inter', sans-serif;
     cursor: pointer;
@@ -199,29 +195,24 @@
     overflow: hidden;
     transition: filter 0.15s, transform 0.12s;
     -webkit-tap-highlight-color: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
+    letter-spacing: 0.02em;
   }
-
-  .btn-correct { background: var(--correct); color: #fff; }
-  .btn-wrong   { background: var(--wrong);   color: #fff; }
-
-  .btn-correct:hover { filter: brightness(1.12); }
-  .btn-wrong:hover   { filter: brightness(1.12); }
+  .btn-correct { background: var(--correct); color: #d8edd9; }
+  .btn-wrong   { background: var(--wrong);   color: #edd8d8; }
+  .btn-correct:hover { filter: brightness(1.15); }
+  .btn-wrong:hover   { filter: brightness(1.15); }
   .btn-correct:active, .btn-wrong:active { transform: scale(0.96); }
 
   .btn-skip {
-    width: 68px;
-    height: 68px;
+    width: 64px;
+    height: 64px;
     flex-shrink: 0;
     border-radius: 50%;
-    border: 2.5px solid var(--skip);
+    border: 2px solid var(--skip);
     background: transparent;
-    color: var(--skip);
+    color: #d4d2b0;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
     font-family: 'Inter', sans-serif;
     cursor: pointer;
     position: relative;
@@ -232,85 +223,76 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 1px;
   }
-
-  .btn-skip:hover  { background: rgba(245, 158, 11, 0.1); }
+  .btn-skip:hover  { background: rgba(125,122,82,0.12); }
   .btn-skip:active { transform: scale(0.93); }
+  .skip-icon { font-size: 16px; line-height: 1; }
 
-  .btn-key {
-    font-size: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    opacity: 0.65;
-    font-weight: 500;
-  }
-
-  /* ── Stats bar ── */
+  /* ── Stats grid ── */
   .stats-bar {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+    margin-bottom: 14px;
   }
 
   .stat-cell {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 8px 4px;
+    border-radius: 9px;
+    padding: 7px 4px;
     text-align: center;
   }
 
   .stat-val {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     line-height: 1.1;
+    color: var(--text);
   }
-
-  .stat-val.c { color: var(--correct); }
-  .stat-val.s { color: var(--skip); }
-  .stat-val.w { color: var(--wrong); }
-  .stat-val.a { color: var(--positive); }
+  .stat-val.c { color: var(--correct); filter: brightness(1.4); }
+  .stat-val.s { color: var(--skip);    filter: brightness(1.5); }
+  .stat-val.w { color: var(--wrong);   filter: brightness(1.4); }
+  .stat-val.a { color: var(--pos); }
 
   .stat-lbl {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--muted);
     margin-top: 2px;
     font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
   /* ── Accuracy bar ── */
-  .accuracy-wrap {
-    margin-bottom: 18px;
-  }
+  .accuracy-wrap { margin-bottom: 16px; }
 
   .accuracy-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
 
   .accuracy-label {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
   .accuracy-pct {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    color: var(--positive);
+    color: var(--pos);
   }
 
   .accuracy-track {
-    height: 6px;
+    height: 5px;
     background: var(--surface);
     border-radius: 99px;
     overflow: hidden;
@@ -319,10 +301,11 @@
 
   .accuracy-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--correct), var(--positive));
+    background: var(--correct);
     border-radius: 99px;
-    transition: width 0.35s ease;
+    transition: width 0.4s ease;
     width: 0%;
+    filter: brightness(1.3);
   }
 
   /* ── Note ── */
@@ -330,9 +313,9 @@
     font-size: 11px;
     color: var(--muted);
     text-align: center;
-    line-height: 1.6;
+    line-height: 1.7;
     border-top: 1px solid var(--border);
-    padding-top: 14px;
+    padding-top: 13px;
   }
 
   .kbd {
@@ -349,23 +332,22 @@
   /* ── Toast ── */
   .toast {
     position: fixed;
-    bottom: 28px;
+    bottom: 26px;
     left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #2d3250;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 10px 20px;
+    padding: 9px 18px;
     border-radius: 99px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     opacity: 0;
-    transition: opacity 0.25s, transform 0.25s;
+    transition: opacity 0.22s, transform 0.22s;
     pointer-events: none;
     white-space: nowrap;
     z-index: 999;
   }
-
   .toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
@@ -376,22 +358,21 @@
     position: absolute;
     border-radius: 50%;
     transform: scale(0);
-    animation: ripple-anim 0.45s linear;
-    background-color: rgba(255,255,255,0.25);
+    animation: ripple-anim 0.42s linear;
+    background-color: rgba(255,255,255,0.18);
     pointer-events: none;
   }
-
   @keyframes ripple-anim {
     to { transform: scale(5); opacity: 0; }
   }
 
   /* ── Mobile ── */
   @media (max-width: 480px) {
-    .card { padding: 22px 18px 20px; }
-    .score-value { font-size: 64px; }
-    .btn-correct, .btn-wrong { padding: 18px 8px; font-size: 16px; }
-    .btn-skip { width: 72px; height: 72px; font-size: 13px; }
-    .stat-val { font-size: 18px; }
+    .card { padding: 20px 16px 18px; }
+    .score-value { font-size: 60px; }
+    .btn-correct, .btn-wrong { padding: 17px 8px; font-size: 15px; }
+    .btn-skip { width: 68px; height: 68px; }
+    .stat-val { font-size: 16px; }
   }
 </style>
 </head>
@@ -405,24 +386,24 @@
     <div class="history-controls">
 
       <!-- Undo -->
-      <button class="icon-btn" id="btnUndo" onclick="undo()" title="Undo (Ctrl+Z)" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="icon-btn" id="btnUndo" onclick="undo()" title="Undo" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9h13a5 5 0 0 1 0 10H7"/>
           <polyline points="3 5 3 9 7 9"/>
         </svg>
       </button>
 
       <!-- Redo -->
-      <button class="icon-btn" id="btnRedo" onclick="redo()" title="Redo (Ctrl+Y)" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="icon-btn" id="btnRedo" onclick="redo()" title="Redo" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 9H8a5 5 0 0 0 0 10h9"/>
           <polyline points="21 5 21 9 17 9"/>
         </svg>
       </button>
 
-      <!-- Reset -->
+      <!-- Reset (tap once = warns, tap again within 2s = resets) -->
       <button class="icon-btn" id="btnReset" onclick="resetAll()" title="Reset">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
           <path d="M3 3v5h5"/>
         </svg>
@@ -431,9 +412,9 @@
     </div>
   </div>
 
-  <!-- Negative mark selector -->
+  <!-- Neg mark -->
   <div class="neg-row">
-    <span class="neg-label">Negative</span>
+    <span class="neg-label">Negative mark</span>
     <select id="negativeMark">
       <option value="0.25">− 0.25</option>
       <option value="0.33">− 0.33</option>
@@ -441,33 +422,29 @@
     </select>
   </div>
 
-  <!-- Score display -->
+  <!-- Score -->
   <div class="score-wrap">
     <div class="score-label">Total Score</div>
     <div class="score-value" id="scoreDisplay">0.00</div>
-    <div class="q-counter">
+    <div class="q-row">
       <span class="q-label">Question</span>
       <span class="q-badge" id="qBadge">1</span>
     </div>
   </div>
 
-  <!-- Action buttons -->
+  <!-- Buttons -->
   <div class="action-row">
-    <button class="btn-correct" onclick="addCorrect(event)">
-      ✓ Correct
+    <button class="btn-correct" onclick="addCorrect(event)">✓ Correct</button>
+
+    <button class="btn-skip" onclick="addSkip(event)" title="Skip">
+      <span class="skip-icon">⊘</span>
+      <span>Skip</span>
     </button>
 
-    <button class="btn-skip" onclick="addSkip(event)" title="Skip / Unattempted">
-      <span style="font-size:18px">⊘</span>
-      Skip
-    </button>
-
-    <button class="btn-wrong" onclick="addWrong(event)">
-      ✗ Wrong
-    </button>
+    <button class="btn-wrong" onclick="addWrong(event)">✗ Wrong</button>
   </div>
 
-  <!-- Stats bar -->
+  <!-- Stats -->
   <div class="stats-bar">
     <div class="stat-cell">
       <div class="stat-val c" id="statCorrect">0</div>
@@ -504,75 +481,58 @@
     <kbd class="kbd">S</kbd> Skip &nbsp;·&nbsp;
     <kbd class="kbd">D</kbd> Wrong<br>
     <kbd class="kbd">Ctrl Z</kbd> Undo &nbsp;·&nbsp;
-    <kbd class="kbd">Ctrl Y</kbd> Redo
-    <br><br>Session is auto-saved — close and reopen anytime.
+    <kbd class="kbd">Ctrl Y</kbd> Redo<br>
+    Session auto-saved — close &amp; reopen anytime.
   </div>
 
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ─────────────────────────────────────────────
-//  State
-// ─────────────────────────────────────────────
-const STORAGE_KEY = 'nmcalc_session_v2';
+const STORAGE_KEY = 'nmcalc_v3';
 
-// Each entry: { type: 'correct'|'wrong'|'skip', negMark: number }
-let history = [];   // committed actions
-let future  = [];   // actions available to redo
+let log    = [];   // committed actions
+let future = [];   // redo stack
 
-// ─────────────────────────────────────────────
-//  Derived state helpers
-// ─────────────────────────────────────────────
+// ── Reset double-tap guard ──
+let resetPending = false;
+let resetTimer   = null;
+
+// ── Compute ──
 function computeStats() {
-  let score   = 0;
-  let correct = 0;
-  let wrong   = 0;
-  let skipped = 0;
-
-  for (const e of history) {
-    if (e.type === 'correct') { score += 1; correct++; }
-    else if (e.type === 'wrong') { score -= e.negMark; wrong++; }
-    else { skipped++; }
+  let score = 0, correct = 0, wrong = 0, skipped = 0;
+  for (const e of log) {
+    if      (e.type === 'correct') { score += 1;         correct++; }
+    else if (e.type === 'wrong')   { score -= e.neg;     wrong++;   }
+    else                           {                     skipped++; }
   }
-
-  const attempted  = correct + wrong;
-  const accuracy   = attempted > 0 ? (correct / attempted) * 100 : null;
-  const qNumber    = history.length + 1;   // next question to answer
-
-  return { score, correct, wrong, skipped, accuracy, qNumber };
+  const attempted = correct + wrong;
+  const accuracy  = attempted > 0 ? (correct / attempted) * 100 : null;
+  return { score, correct, wrong, skipped, accuracy, qNumber: log.length + 1 };
 }
 
-// ─────────────────────────────────────────────
-//  Render
-// ─────────────────────────────────────────────
+// ── Render ──
 function render() {
   const { score, correct, wrong, skipped, accuracy, qNumber } = computeStats();
 
-  // Score
   const sd = document.getElementById('scoreDisplay');
   sd.textContent = score.toFixed(2);
-  sd.className = 'score-value' + (score > 0 ? ' positive' : score < 0 ? ' negative' : '');
+  sd.className   = 'score-value' + (score > 0 ? ' pos' : score < 0 ? ' neg' : '');
 
-  // Question badge
-  document.getElementById('qBadge').textContent = qNumber;
-
-  // Stats cells
+  document.getElementById('qBadge').textContent      = qNumber;
   document.getElementById('statCorrect').textContent = correct;
   document.getElementById('statSkipped').textContent = skipped;
   document.getElementById('statWrong').textContent   = wrong;
 
-  // Accuracy
   const pctEl  = document.getElementById('accuracyPct');
   const statAc = document.getElementById('statAccuracy');
   const fill   = document.getElementById('accuracyFill');
 
   if (accuracy !== null) {
-    const pctStr = accuracy.toFixed(1) + '%';
-    pctEl.textContent  = pctStr;
-    statAc.textContent = pctStr;
+    const s = accuracy.toFixed(1) + '%';
+    pctEl.textContent  = s;
+    statAc.textContent = s;
     fill.style.width   = accuracy + '%';
   } else {
     pctEl.textContent  = '—';
@@ -580,205 +540,169 @@ function render() {
     fill.style.width   = '0%';
   }
 
-  // Undo / Redo buttons
-  document.getElementById('btnUndo').disabled = history.length === 0;
+  document.getElementById('btnUndo').disabled = log.length === 0;
   document.getElementById('btnRedo').disabled = future.length === 0;
 
-  // Persist
-  saveSession();
+  save();
 }
 
-// ─────────────────────────────────────────────
-//  Actions
-// ─────────────────────────────────────────────
+// ── Actions ──
 function getNeg() {
   return parseFloat(document.getElementById('negativeMark').value);
 }
 
 function commit(entry) {
-  history.push(entry);
-  future = [];   // new action clears redo stack
+  log.push(entry);
+  future = [];
   render();
 }
 
-function addCorrect(event) {
-  commit({ type: 'correct', negMark: getNeg() });
-  feedback(event, 'correct');
-}
-
-function addSkip(event) {
-  commit({ type: 'skip', negMark: getNeg() });
-  feedback(event, 'skip');
-}
-
-function addWrong(event) {
-  commit({ type: 'wrong', negMark: getNeg() });
-  feedback(event, 'wrong');
-}
+function addCorrect(e) { commit({ type: 'correct', neg: getNeg() }); feedback(e, 'correct'); }
+function addSkip(e)    { commit({ type: 'skip',    neg: getNeg() }); feedback(e, 'skip');    }
+function addWrong(e)   { commit({ type: 'wrong',   neg: getNeg() }); feedback(e, 'wrong');   }
 
 function undo() {
-  if (history.length === 0) return;
-  future.push(history.pop());
+  if (log.length === 0) return;
+  future.push(log.pop());
   render();
-  playBeep(440, 'sine', 0.1, 0.25);
-  vibrate(30);
+  beep(420, 'sine', 0.1, 0.22);
+  buzz(25);
 }
 
 function redo() {
   if (future.length === 0) return;
-  history.push(future.pop());
+  log.push(future.pop());
   render();
-  playBeep(550, 'sine', 0.1, 0.25);
-  vibrate(30);
+  beep(520, 'sine', 0.1, 0.22);
+  buzz(25);
 }
 
 function resetAll() {
-  if (history.length === 0 && future.length === 0) return;
-  if (!confirm('Reset everything and start from Question 1?')) return;
-  history = [];
-  future  = [];
+  if (log.length === 0 && future.length === 0) return;
+
+  if (!resetPending) {
+    // First tap — warn
+    resetPending = true;
+    const btn = document.getElementById('btnReset');
+    btn.classList.add('confirm-reset');
+    showToast('Tap reset again to confirm');
+    resetTimer = setTimeout(() => {
+      resetPending = false;
+      btn.classList.remove('confirm-reset');
+    }, 2000);
+    return;
+  }
+
+  // Second tap within 2s — actually reset
+  clearTimeout(resetTimer);
+  resetPending = false;
+  document.getElementById('btnReset').classList.remove('confirm-reset');
+
+  log    = [];
+  future = [];
   render();
-  showToast('Reset — starting fresh');
-  playBeep(330, 'triangle', 0.15, 0.3);
-  vibrate([40, 30, 40]);
+  showToast('Reset — starting from Q1');
+  beep(300, 'triangle', 0.18, 0.28);
+  buzz([35, 25, 35]);
 }
 
-// ─────────────────────────────────────────────
-//  Feedback (sound + vibration + ripple)
-// ─────────────────────────────────────────────
-function feedback(event, type) {
-  if (event) createRipple(event);
-
-  if (type === 'correct') {
-    playBeep(880, 'sine',     0.18, 0.5);
-    vibrate(40);
-  } else if (type === 'wrong') {
-    playBeep(220, 'square',   0.22, 0.4);
-    vibrate([60, 40, 60]);
-  } else {
-    playBeep(540, 'triangle', 0.14, 0.3);
-    vibrate(25);
-  }
+// ── Feedback ──
+function feedback(e, type) {
+  if (e) ripple(e);
+  if (type === 'correct') { beep(860, 'sine',     0.16, 0.42); buzz(38); }
+  else if (type === 'wrong')  { beep(210, 'square',   0.2,  0.35); buzz([55, 35, 55]); }
+  else                        { beep(520, 'triangle', 0.13, 0.28); buzz(22); }
 }
 
-function createRipple(event) {
-  const btn = event.currentTarget;
-  const existing = btn.querySelector('.ripple');
-  if (existing) existing.remove();
-
-  const circle   = document.createElement('span');
-  const diameter = Math.max(btn.clientWidth, btn.clientHeight);
-  const radius   = diameter / 2;
-  const rect     = btn.getBoundingClientRect();
-
-  circle.style.cssText = `
-    width:${diameter}px; height:${diameter}px;
-    left:${event.clientX - rect.left - radius}px;
-    top:${event.clientY - rect.top  - radius}px;
-  `;
-  circle.classList.add('ripple');
-  btn.appendChild(circle);
+function ripple(e) {
+  const btn = e.currentTarget;
+  const old = btn.querySelector('.ripple');
+  if (old) old.remove();
+  const span = document.createElement('span');
+  const d = Math.max(btn.clientWidth, btn.clientHeight);
+  const r = d / 2;
+  const rect = btn.getBoundingClientRect();
+  span.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX-rect.left-r}px;top:${e.clientY-rect.top-r}px;`;
+  span.classList.add('ripple');
+  btn.appendChild(span);
 }
 
-// ─────────────────────────────────────────────
-//  Audio
-// ─────────────────────────────────────────────
-let audioCtx = null;
-
-function getAudioCtx() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  return audioCtx;
+// ── Audio ──
+let actx = null;
+function getCtx() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  return actx;
 }
-
-function playBeep(freq, type, dur, vol) {
+function beep(freq, type, dur, vol) {
   try {
-    const ctx  = getAudioCtx();
-    const osc  = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    gain.gain.setValueAtTime(vol, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + dur);
-  } catch(e) {}
+    const ctx = getCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, ctx.currentTime);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + dur);
+  } catch(_) {}
 }
+function buzz(p) { if (navigator.vibrate) navigator.vibrate(p); }
 
-function vibrate(pattern) {
-  if (navigator.vibrate) navigator.vibrate(pattern);
-}
-
-// ─────────────────────────────────────────────
-//  Toast
-// ─────────────────────────────────────────────
-let toastTimer = null;
-
+// ── Toast ──
+let toastT = null;
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ─────────────────────────────────────────────
-//  Session persistence (localStorage)
-// ─────────────────────────────────────────────
-function saveSession() {
+// ── Persist ──
+function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      history,
-      future,
-      negMark: document.getElementById('negativeMark').value
+      log, future,
+      neg: document.getElementById('negativeMark').value
     }));
-  } catch(e) {}
+  } catch(_) {}
 }
 
-function loadSession() {
+function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
-
-    const data = JSON.parse(raw);
-    if (!data.history || data.history.length === 0) return false;
-
-    history = data.history;
-    future  = data.future || [];
-
-    if (data.negMark) {
-      document.getElementById('negativeMark').value = data.negMark;
-    }
-
+    const d = JSON.parse(raw);
+    if (!d.log || d.log.length === 0) return false;
+    log    = d.log;
+    future = d.future || [];
+    if (d.neg) document.getElementById('negativeMark').value = d.neg;
     return true;
-  } catch(e) {
-    return false;
-  }
+  } catch(_) { return false; }
 }
 
-// ─────────────────────────────────────────────
-//  Keyboard shortcuts
-// ─────────────────────────────────────────────
-document.addEventListener('keydown', (e) => {
-  // Ignore when typing in an input/select
+// ── Keyboard ──
+document.addEventListener('keydown', e => {
   if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return;
-
   if (e.ctrlKey || e.metaKey) {
     if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo(); return; }
     if (e.key === 'y' || e.key === 'Y') { e.preventDefault(); redo(); return; }
   }
-
-  switch (e.key.toLowerCase()) {
-    case 'a': addCorrect(null); break;
-    case 's': addSkip(null);    break;
-    case 'd': addWrong(null);   break;
-  }
+  if      (e.key.toLowerCase() === 'a') addCorrect(null);
+  else if (e.key.toLowerCase() === 's') addSkip(null);
+  else if (e.key.toLowerCase() === 'd') addWrong(null);
 });
 
-// ─────────────────────────────────────────────
-//  Boot
-// ─────────────────────────────────────────────
-(function init
+// ── Init ──
+(function() {
+  const restored = load();
+  render();
+  if (restored) {
+    const { qNumber } = computeStats();
+    showToast('Session restored — Q' + (qNumber - 1) + ' done');
+  }
+})();
+</script>
+</body>
+</html>
