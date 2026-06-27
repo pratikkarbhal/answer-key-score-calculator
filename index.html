@@ -77,11 +77,12 @@ button {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 button:active {
-    transform: scale(0.97);
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .correct {
@@ -98,6 +99,28 @@ button:active {
     margin-top: 15px;
     color: #666;
     font-size: 14px;
+}
+
+/* Ripple effect */
+button {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-anim 0.4s linear;
+    background-color: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+}
+
+@keyframes ripple-anim {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
 }
 
 @media (max-width: 768px) {
@@ -152,40 +175,122 @@ button:active {
     <input type="number" id="counter" value="0.00" readonly>
 
     <div class="buttons">
-        <button class="correct" onclick="addCorrect()">
+        <button class="correct" onclick="addCorrect(event)">
             +1 Correct
         </button>
 
-        <button class="wrong" onclick="addWrong()">
+        <button class="wrong" onclick="addWrong(event)">
             Wrong
         </button>
     </div>
 
     <div class="info">
-        Note: Do not consider Un-attempted questions as it won't have any effect.<br>
-        Correct = +1 | Wrong = -Selected (default -0.25 , can be changed from drop-down)
+        Note: Do not consider Un-attempted questions.<br>
+        Correct = +1 | Wrong = -(Default -0.25 , can be changed from drop-down)
     </div>
 </div>
 
 <script>
 let total = 0;
 
+// ── Audio Context (created once on first interaction to satisfy browser policy) ──
+let audioCtx = null;
+
+function getAudioCtx() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+}
+
+/**
+ * Play a short beep.
+ * @param {number} frequency  - Hz  (higher = brighter)
+ * @param {string} type       - oscillator type: 'sine' | 'square' | 'triangle'
+ * @param {number} duration   - seconds
+ * @param {number} volume     - 0.0 – 1.0
+ */
+function playBeep(frequency, type, duration, volume) {
+    try {
+        const ctx = getAudioCtx();
+        const oscillator = ctx.createOscillator();
+        const gainNode   = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.type      = type;
+        oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+
+        // Fade out smoothly to avoid a click at the end
+        gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + duration);
+    } catch (e) {
+        // Audio not supported – silently ignore
+    }
+}
+
+// ── Vibration ──
+function vibrate(pattern) {
+    if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+    }
+}
+
+// ── Ripple effect ──
+function createRipple(event) {
+    const button = event.currentTarget;
+    const circle = document.createElement('span');
+    const diameter = Math.max(button.clientWidth, button.clientHeight);
+    const radius = diameter / 2;
+    const rect = button.getBoundingClientRect();
+
+    circle.style.width  = circle.style.height = `${diameter}px`;
+    circle.style.left   = `${event.clientX - rect.left - radius}px`;
+    circle.style.top    = `${event.clientY - rect.top  - radius}px`;
+    circle.classList.add('ripple');
+
+    // Remove any existing ripple
+    const existing = button.querySelector('.ripple');
+    if (existing) existing.remove();
+
+    button.appendChild(circle);
+}
+
+// ── Display ──
 function updateDisplay() {
     document.getElementById("counter").value = total.toFixed(2);
 }
 
-function addCorrect() {
+// ── Button actions ──
+function addCorrect(event) {
     total += 1;
     updateDisplay();
+    createRipple(event);
+
+    // Pleasant high-pitched "ding" for correct
+    playBeep(880, 'sine', 0.18, 0.5);
+
+    // Short single vibration — feels like a satisfying tap
+    vibrate(40);
 }
 
-function addWrong() {
+function addWrong(event) {
     const negative = parseFloat(
         document.getElementById("negativeMark").value
     );
-
     total -= negative;
     updateDisplay();
+    createRipple(event);
+
+    // Lower, harsher buzz for wrong
+    playBeep(220, 'square', 0.22, 0.4);
+
+    // Double pulse vibration — distinct from correct
+    vibrate([60, 40, 60]);
 }
 </script>
 
