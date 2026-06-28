@@ -1,54 +1,62 @@
-# 🎯 Negative Marking Calculator [See Preview](https://pratikkarbhal.github.io/answer-key-score-calculator/)
+# 🐾 Score Tracker — Negative Marking Calculator [See Preview](https://pratikkarbhal.github.io/answer-key-score-calculator/)
 
 
-A simple, fast, and mobile-friendly web application for calculating exam scores using official answer keys.
+> *made with 🧡 for exam warriors*
 
-Perfect for candidates who want to estimate their marks immediately after an exam without manually calculating negative marking.
+A tiny, fast, single-file calculator that tracks your score during mock exam practice — handling negative marking so you don't have to think about the math mid-paper.
 
-## 🌐 [Live Demo](https://pratikkarbhal.github.io/answer-key-score-calculator/)
+---
 
 ## ✨ Features
 
-- ✅ One-click correct answer counter (+1 mark)
-- ❌ Automatic negative marking deduction
-- 🎚️ Select negative marking ratio:
-  - 0.25
-  - 0.33
-  - 0.50
-- 📱 Mobile responsive design
-- ⚡ Lightweight and fast
-- 🌐 Runs entirely in the browser
-- 🔒 No login, tracking, ads, or internet required
+- ✅ Live score with color feedback (green / red)
+- ⊘ Skip tracking for unattempted questions
+- 📊 Live accuracy % (only counts attempted questions)
+- 🔢 Current question counter
+- ↩️ Undo / Redo support
+- 💾 Auto session save — close and reopen anytime
+- 🔔 Sound feedback + vibration on mobile
+- ⌨️ Keyboard shortcuts for fast input
 
 ---
 
-## 📖 How It Works
+## 🚀 Live Demo
 
-1. Select the negative marking applicable to your exam.
-2. Compare your responses with the official answer key.
-3. Click **+1 Correct** for every correct answer.
-4. Click **Wrong** for every incorrect answer.
-5. The score is updated instantly.
-
-Example:
-
-| Correct | Wrong | Negative Marking | Score |
-|----------|---------|------------------|--------|
-| 80 | 20 | 0.25 | 75 |
-| 90 | 15 | 0.33 | 85.05 |
-| 70 | 10 | 0.50 | 65 |
-
-Formula:
-
-```text
-Score = Correct Answers × 1 − Wrong Answers × Negative Mark
-```
+👉 [Open Score Tracker](https://pratikkarbhal.github.io/answer-key-score-calculator/)
 
 ---
 
-## 🎓 Useful For
+## 📖 How to Use
 
-This calculator is useful for competitive examinations that use negative marking, including:
+1. Pick your **negative mark** value from the dropdown (−0.25, −0.33, or −0.50)
+2. For each question tap **Correct**, **Skip**, or **Wrong** — score updates instantly
+3. Made a mistake? Hit **Undo**. Changed your mind? **Redo** brings it back
+4. Close the tab accidentally? Session is auto-saved and restores on reopen
+5. Done with a paper? Tap **Start Again** twice to reset back to Q1
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `A` | Correct |
+| `S` | Skip |
+| `D` | Wrong |
+| `Ctrl + Z` | Undo |
+| `Ctrl + Y` | Redo |
+
+---
+
+## 🎯 Button Guide
+
+| Button | Effect | When to use |
+|--------|--------|-------------|
+| ✓ Correct | +1 to score | Your answer was right |
+| ⊘ Skip | No change | Left blank / unattempted |
+| ✗ Wrong | −0.25 / −0.33 / −0.50 | Incorrect answer marked |
+
+---
 
 ### UPSC
 - Civil Services Preliminary Examination (CSE Prelims)
@@ -95,19 +103,6 @@ This calculator is useful for competitive examinations that use negative marking
 - Defence Exams
 - State PSC Examinations
 - Recruitment Exams with negative marking
-
----
-
-
-## 🛠️ Built With
-
-- HTML5
-- CSS3
-- Vanilla JavaScript
-
-No frameworks.
-No libraries.
-No dependencies.
 
 ---
 
