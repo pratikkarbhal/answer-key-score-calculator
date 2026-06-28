@@ -8,23 +8,20 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap');
 
   :root {
-    --bg:       #13151c;
-    --card:     #1c1f2e;
-    --surface:  #252839;
-    --border:   #2f3347;
-    --text:     #dde1f0;
-    --muted:    #5c6278;
-    --subtle:   #3a3f58;
+    --bg:      #f0ede8;
+    --surface: #e6e2db;
+    --border:  #d4cfc8;
+    --text:    #1e1c1a;
+    --muted:   #8a8278;
+    --icon:    #2c2a28;
 
-    /* Muted, cohesive accent trio */
-    --correct:  #5a8f6e;   /* sage green  */
-    --skip:     #7d7a52;   /* warm khaki  */
-    --wrong:    #8f5a5a;   /* dusty rose  */
+    --correct: #3d7a56;
+    --wrong:   #8f3a3a;
+    --skip:    #7a6e3a;
 
-    /* Score colors — readable but not jarring */
-    --pos:      #6aab82;
-    --neg:      #ab6a6a;
-    --zero:     #6a7494;
+    --pos:     #2e6b45;
+    --neg:     #8f3a3a;
+    --zero:    #6b6560;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,19 +33,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px 20px;
     color: var(--text);
   }
 
-  /* ── Card ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 24px 22px 22px;
+  /* ── Layout — no card, just a width-constrained column ── */
+  .layout {
     width: 100%;
-    max-width: 390px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   /* ── Top bar ── */
@@ -56,7 +51,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
   }
 
   .app-title {
@@ -69,7 +63,7 @@
 
   .history-controls {
     display: flex;
-    gap: 2px;
+    gap: 0px;
     align-items: center;
   }
 
@@ -79,31 +73,32 @@
     cursor: pointer;
     padding: 7px;
     border-radius: 8px;
-    color: var(--subtle);
+    color: var(--icon);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.15s, background 0.15s;
+    transition: color 0.15s, background 0.15s, transform 0.1s;
     -webkit-tap-highlight-color: transparent;
   }
-  .icon-btn:hover   { color: var(--text); background: rgba(255,255,255,0.05); }
+  .icon-btn:hover   { background: rgba(0,0,0,0.06); }
   .icon-btn:active  { transform: scale(0.88); }
-  .icon-btn:disabled { color: #272b3c; cursor: default; background: none !important; }
-  .icon-btn svg     { width: 18px; height: 18px; }
-
-  /* Reset confirm state */
+  .icon-btn:disabled {
+    color: #c0bbb4;
+    cursor: default;
+    background: none !important;
+  }
+  .icon-btn svg { width: 19px; height: 19px; }
   .icon-btn.confirm-reset { color: var(--wrong); }
 
-  /* ── Neg mark selector ── */
+  /* ── Neg mark ── */
   .neg-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 16px;
   }
 
   .neg-label {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted);
     white-space: nowrap;
     font-weight: 500;
@@ -115,7 +110,7 @@
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 9px;
-    padding: 8px 12px;
+    padding: 9px 12px;
     font-size: 14px;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
@@ -123,21 +118,20 @@
     appearance: none;
     text-align: center;
   }
-  select:focus { outline: 1px solid var(--subtle); outline-offset: 2px; }
+  select:focus { outline: 2px solid var(--correct); outline-offset: 2px; }
 
   /* ── Score block ── */
   .score-wrap {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 12px 12px;
-    margin-bottom: 16px;
+    border-radius: 14px;
+    padding: 20px 16px 16px;
     text-align: center;
   }
 
   .score-label {
     font-size: 10px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.13em;
     text-transform: uppercase;
     color: var(--muted);
     margin-bottom: 4px;
@@ -146,7 +140,7 @@
 
   .score-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 54px;
+    font-size: 58px;
     font-weight: 700;
     line-height: 1;
     color: var(--zero);
@@ -160,16 +154,16 @@
     align-items: center;
     justify-content: center;
     gap: 5px;
-    margin-top: 8px;
+    margin-top: 10px;
   }
-  .q-label { font-size: 11px; color: var(--muted); }
+  .q-label { font-size: 12px; color: var(--muted); font-weight: 500; }
   .q-badge {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     font-weight: 700;
     background: var(--border);
     color: var(--text);
-    padding: 2px 9px;
+    padding: 2px 10px;
     border-radius: 20px;
   }
 
@@ -178,7 +172,6 @@
     display: flex;
     gap: 10px;
     align-items: center;
-    margin-bottom: 16px;
   }
 
   .btn-correct,
@@ -186,8 +179,8 @@
     flex: 1;
     border: none;
     border-radius: 12px;
-    padding: 15px 8px;
-    font-size: 14px;
+    padding: 16px 8px;
+    font-size: 15px;
     font-weight: 600;
     font-family: 'Inter', sans-serif;
     cursor: pointer;
@@ -195,22 +188,22 @@
     overflow: hidden;
     transition: filter 0.15s, transform 0.12s;
     -webkit-tap-highlight-color: transparent;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
   }
-  .btn-correct { background: var(--correct); color: #d8edd9; }
-  .btn-wrong   { background: var(--wrong);   color: #edd8d8; }
-  .btn-correct:hover { filter: brightness(1.15); }
-  .btn-wrong:hover   { filter: brightness(1.15); }
+  .btn-correct { background: var(--correct); color: #e8f5ee; }
+  .btn-wrong   { background: var(--wrong);   color: #f5e8e8; }
+  .btn-correct:hover { filter: brightness(1.1); }
+  .btn-wrong:hover   { filter: brightness(1.1); }
   .btn-correct:active, .btn-wrong:active { transform: scale(0.96); }
 
   .btn-skip {
-    width: 64px;
-    height: 64px;
+    width: 66px;
+    height: 66px;
     flex-shrink: 0;
     border-radius: 50%;
     border: 2px solid var(--skip);
     background: transparent;
-    color: #d4d2b0;
+    color: var(--skip);
     font-size: 12px;
     font-weight: 600;
     font-family: 'Inter', sans-serif;
@@ -225,23 +218,22 @@
     justify-content: center;
     gap: 1px;
   }
-  .btn-skip:hover  { background: rgba(125,122,82,0.12); }
+  .btn-skip:hover  { background: rgba(122,110,58,0.08); }
   .btn-skip:active { transform: scale(0.93); }
-  .skip-icon { font-size: 16px; line-height: 1; }
+  .skip-icon { font-size: 17px; line-height: 1; }
 
   /* ── Stats grid ── */
   .stats-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 7px;
-    margin-bottom: 14px;
   }
 
   .stat-cell {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 7px 4px;
+    border-radius: 10px;
+    padding: 8px 4px;
     text-align: center;
   }
 
@@ -250,11 +242,10 @@
     font-size: 15px;
     font-weight: 700;
     line-height: 1.1;
-    color: var(--text);
   }
-  .stat-val.c { color: var(--correct); filter: brightness(1.4); }
-  .stat-val.s { color: var(--skip);    filter: brightness(1.5); }
-  .stat-val.w { color: var(--wrong);   filter: brightness(1.4); }
+  .stat-val.c { color: var(--correct); }
+  .stat-val.s { color: var(--skip); }
+  .stat-val.w { color: var(--wrong); }
   .stat-val.a { color: var(--pos); }
 
   .stat-lbl {
@@ -267,7 +258,7 @@
   }
 
   /* ── Accuracy bar ── */
-  .accuracy-wrap { margin-bottom: 16px; }
+  .accuracy-wrap { }
 
   .accuracy-row {
     display: flex;
@@ -305,7 +296,6 @@
     border-radius: 99px;
     transition: width 0.4s ease;
     width: 0%;
-    filter: brightness(1.3);
   }
 
   /* ── Note ── */
@@ -313,9 +303,9 @@
     font-size: 11px;
     color: var(--muted);
     text-align: center;
-    line-height: 1.7;
+    line-height: 1.8;
     border-top: 1px solid var(--border);
-    padding-top: 13px;
+    padding-top: 14px;
   }
 
   .kbd {
@@ -334,16 +324,15 @@
     position: fixed;
     bottom: 26px;
     left: 50%;
-    transform: translateX(-50%) translateY(16px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
+    transform: translateX(-50%) translateY(14px);
+    background: var(--text);
+    color: var(--bg);
     padding: 9px 18px;
     border-radius: 99px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     opacity: 0;
-    transition: opacity 0.22s, transform 0.22s;
+    transition: opacity 0.2s, transform 0.2s;
     pointer-events: none;
     white-space: nowrap;
     z-index: 999;
@@ -359,56 +348,47 @@
     border-radius: 50%;
     transform: scale(0);
     animation: ripple-anim 0.42s linear;
-    background-color: rgba(255,255,255,0.18);
+    background-color: rgba(255,255,255,0.22);
     pointer-events: none;
   }
   @keyframes ripple-anim {
     to { transform: scale(5); opacity: 0; }
   }
 
-  /* ── Mobile ── */
   @media (max-width: 480px) {
-    .card { padding: 20px 16px 18px; }
-    .score-value { font-size: 60px; }
-    .btn-correct, .btn-wrong { padding: 17px 8px; font-size: 15px; }
-    .btn-skip { width: 68px; height: 68px; }
-    .stat-val { font-size: 16px; }
+    body { padding: 20px 16px; }
+    .score-value { font-size: 62px; }
+    .btn-correct, .btn-wrong { padding: 18px 8px; }
+    .btn-skip { width: 70px; height: 70px; }
   }
 </style>
 </head>
 <body>
 
-<div class="card">
+<div class="layout">
 
   <!-- Top bar -->
   <div class="top-bar">
     <span class="app-title">Score Tracker</span>
     <div class="history-controls">
-
-      <!-- Undo -->
       <button class="icon-btn" id="btnUndo" onclick="undo()" title="Undo" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9h13a5 5 0 0 1 0 10H7"/>
           <polyline points="3 5 3 9 7 9"/>
         </svg>
       </button>
-
-      <!-- Redo -->
       <button class="icon-btn" id="btnRedo" onclick="redo()" title="Redo" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 9H8a5 5 0 0 0 0 10h9"/>
           <polyline points="21 5 21 9 17 9"/>
         </svg>
       </button>
-
-      <!-- Reset (tap once = warns, tap again within 2s = resets) -->
       <button class="icon-btn" id="btnReset" onclick="resetAll()" title="Reset">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
           <path d="M3 3v5h5"/>
         </svg>
       </button>
-
     </div>
   </div>
 
@@ -427,7 +407,7 @@
     <div class="score-label">Total Score</div>
     <div class="score-value" id="scoreDisplay">0.00</div>
     <div class="q-row">
-      <span class="q-label">Question</span>
+      <span class="q-label">Enter for Question</span>
       <span class="q-badge" id="qBadge">1</span>
     </div>
   </div>
@@ -435,12 +415,10 @@
   <!-- Buttons -->
   <div class="action-row">
     <button class="btn-correct" onclick="addCorrect(event)">✓ Correct</button>
-
     <button class="btn-skip" onclick="addSkip(event)" title="Skip">
       <span class="skip-icon">⊘</span>
       <span>Skip</span>
     </button>
-
     <button class="btn-wrong" onclick="addWrong(event)">✗ Wrong</button>
   </div>
 
@@ -492,27 +470,23 @@
 <script>
 const STORAGE_KEY = 'nmcalc_v3';
 
-let log    = [];   // committed actions
-let future = [];   // redo stack
-
-// ── Reset double-tap guard ──
+let log    = [];
+let future = [];
 let resetPending = false;
 let resetTimer   = null;
 
-// ── Compute ──
 function computeStats() {
   let score = 0, correct = 0, wrong = 0, skipped = 0;
   for (const e of log) {
-    if      (e.type === 'correct') { score += 1;         correct++; }
-    else if (e.type === 'wrong')   { score -= e.neg;     wrong++;   }
-    else                           {                     skipped++; }
+    if      (e.type === 'correct') { score += 1;     correct++; }
+    else if (e.type === 'wrong')   { score -= e.neg; wrong++;   }
+    else                           {                 skipped++; }
   }
   const attempted = correct + wrong;
   const accuracy  = attempted > 0 ? (correct / attempted) * 100 : null;
   return { score, correct, wrong, skipped, accuracy, qNumber: log.length + 1 };
 }
 
-// ── Render ──
 function render() {
   const { score, correct, wrong, skipped, accuracy, qNumber } = computeStats();
 
@@ -546,7 +520,6 @@ function render() {
   save();
 }
 
-// ── Actions ──
 function getNeg() {
   return parseFloat(document.getElementById('negativeMark').value);
 }
@@ -581,7 +554,6 @@ function resetAll() {
   if (log.length === 0 && future.length === 0) return;
 
   if (!resetPending) {
-    // First tap — warn
     resetPending = true;
     const btn = document.getElementById('btnReset');
     btn.classList.add('confirm-reset');
@@ -593,7 +565,6 @@ function resetAll() {
     return;
   }
 
-  // Second tap within 2s — actually reset
   clearTimeout(resetTimer);
   resetPending = false;
   document.getElementById('btnReset').classList.remove('confirm-reset');
@@ -606,12 +577,11 @@ function resetAll() {
   buzz([35, 25, 35]);
 }
 
-// ── Feedback ──
 function feedback(e, type) {
   if (e) ripple(e);
-  if (type === 'correct') { beep(860, 'sine',     0.16, 0.42); buzz(38); }
-  else if (type === 'wrong')  { beep(210, 'square',   0.2,  0.35); buzz([55, 35, 55]); }
-  else                        { beep(520, 'triangle', 0.13, 0.28); buzz(22); }
+  if      (type === 'correct') { beep(860, 'sine',     0.16, 0.42); buzz(38); }
+  else if (type === 'wrong')   { beep(210, 'square',   0.2,  0.35); buzz([55, 35, 55]); }
+  else                         { beep(520, 'triangle', 0.13, 0.28); buzz(22); }
 }
 
 function ripple(e) {
@@ -619,15 +589,14 @@ function ripple(e) {
   const old = btn.querySelector('.ripple');
   if (old) old.remove();
   const span = document.createElement('span');
-  const d = Math.max(btn.clientWidth, btn.clientHeight);
-  const r = d / 2;
+  const d    = Math.max(btn.clientWidth, btn.clientHeight);
+  const r    = d / 2;
   const rect = btn.getBoundingClientRect();
   span.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX-rect.left-r}px;top:${e.clientY-rect.top-r}px;`;
   span.classList.add('ripple');
   btn.appendChild(span);
 }
 
-// ── Audio ──
 let actx = null;
 function getCtx() {
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
@@ -636,8 +605,8 @@ function getCtx() {
 function beep(freq, type, dur, vol) {
   try {
     const ctx = getCtx();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
+    const o   = ctx.createOscillator();
+    const g   = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
     o.type = type;
     o.frequency.setValueAtTime(freq, ctx.currentTime);
@@ -649,7 +618,6 @@ function beep(freq, type, dur, vol) {
 }
 function buzz(p) { if (navigator.vibrate) navigator.vibrate(p); }
 
-// ── Toast ──
 let toastT = null;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -659,7 +627,6 @@ function showToast(msg) {
   toastT = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ── Persist ──
 function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -682,7 +649,6 @@ function load() {
   } catch(_) { return false; }
 }
 
-// ── Keyboard ──
 document.addEventListener('keydown', e => {
   if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return;
   if (e.ctrlKey || e.metaKey) {
@@ -694,7 +660,6 @@ document.addEventListener('keydown', e => {
   else if (e.key.toLowerCase() === 'd') addWrong(null);
 });
 
-// ── Init ──
 (function() {
   const restored = load();
   render();
